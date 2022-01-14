@@ -1,0 +1,4 @@
+[submodule "zigmod"]
+	path = zigmod
+	url = https://github.com/dyu/zigmod.git
+	branch = link-c-libs
