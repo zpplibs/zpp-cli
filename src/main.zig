@@ -14,21 +14,27 @@ const commands = struct {
     usingnamespace zigmod.commands_core;
 };
 
-fn printHelp(mod_only: bool) void {
-    util.print("zpp {s} {s} {s} {s}", .{
+fn printVersion() void {
+    util.print("zpp {s} {s} {s}", .{
         build_options.version,
         @tagName(builtin.os.tag),
         @tagName(builtin.cpu.arch),
-        @tagName(builtin.abi),
     });
-    util.print("", .{});
-    if (mod_only) util.print("The subcommands available are:", .{})
-    else util.print("The commands available are:", .{});
-    if (!mod_only) util.print("  - help", .{});
+}
+
+fn printHelp(mod_only: bool) void {
+    if (mod_only) {
+        util.print("The available subcommands are:", .{});
+    } else {
+        util.print("The available commands are:", .{});
+        util.print("  - help", .{});
+        util.print("  - version", .{});
+    }
     inline for (std.meta.declarations(commands)) |decl| {
         util.print("  - mod {s}", .{decl.name});
     }
-    if (!mod_only) util.print("  - version", .{});
+    util.print("", .{});
+    printVersion();
 }
 
 pub fn main() !void {
@@ -51,12 +57,7 @@ pub fn main() !void {
         std.mem.eql(u8, args[0], "version") or
         std.mem.eql(u8, args[0], "--version")
     ) {
-        const version = if (@hasDecl(build_options, "version")) build_options.version else "unknown";
-        const stdout = std.io.getStdOut();
-        const w = stdout.writer();
-        try w.print("zpp {s} {s} {s}\n", .{
-            version, @tagName(builtin.os.tag), @tagName(builtin.cpu.arch),
-        });
+        printVersion();
         return;
     }
 
