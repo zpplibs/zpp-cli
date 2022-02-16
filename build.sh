@@ -2,24 +2,25 @@
 
 set -e
 
-[ -z "$ZIG_BIN" ] && ZIG_BIN=zig
+APP=zpp
+OPTS='-Drelease-safe'
 
-APP="zpp"
-OUT_DIR=dist
-OPTS="-Drelease-safe"
-REL_VERSION=$1
-[ -n "$REL_VERSION" ] && OPTS="$OPTS -Dversion=$REL_VERSION"
+[ -z "$ZIG_BIN" ] && ZIG_BIN=zig
+[ "$1" != 'dist' ] && $ZIG_BIN build $OPTS && exit 0
+
+DIST_DIR=dist
+DIST_VERSION=$2
+[ -n "$DIST_VERSION" ] && OPTS="$OPTS -Dversion=$DIST_VERSION"
 
 #TODO add 'aarch64-windows-gnu' when zig has tier1 support for that 
-#TARGETS='x86_64-linux-musl aarch64-linux-musl x86_64-linux-gnu.2.23 aarch64-linux-gnu.2.23 x86_64-macos-gnu aarch64-macos-gnu x86_64-windows-gnu'
 TARGETS='x86_64-linux-gnu.2.23 aarch64-linux-gnu.2.23 x86_64-macos-gnu aarch64-macos-gnu x86_64-windows-gnu'
 
 cross_compile_target(){
     TARGET=$1
     NAME=${TARGET%%-gnu*}
     TARGET_DIR=$APP-$NAME
-    echo "$OUT_DIR/$TARGET_DIR ... -Dtarget=$TARGET $OPTS"
-    $ZIG_BIN build -p "$OUT_DIR/$TARGET_DIR" -Dtarget=$TARGET $OPTS
+    echo "$DIST_DIR/$TARGET_DIR ... -Dtarget=$TARGET $OPTS"
+    $ZIG_BIN build -p "$DIST_DIR/$TARGET_DIR" -Dtarget=$TARGET $OPTS
 }
 
 archive_target(){
@@ -43,20 +44,19 @@ for T in $TARGETS; do
     cross_compile_target $T
 done
 
-cd $OUT_DIR
+cd $DIST_DIR
 
 for T in $TARGETS; do
     archive_target $T
 done
 
-[ -n "$REL_VERSION" ] || exit 0
+[ -n "$DIST_VERSION" ] || exit 0
 
-REL_TOKEN=$2
-[ -n "$REL_TOKEN" ] || { echo "2nd arg (github token) is required for release."; exit 1; }
-
-REL_USER=dyu
 REPO_USER=zpplibs
 REPO_NAME=zpp-cli
+AUTH_USER=dyu
+AUTH_TOKEN=$3
+[ -n "$AUTH_TOKEN" ] || { echo "3rd arg (github auth token) is required for release."; exit 1; }
 
 upload_target(){
     NAME=${1%%-gnu*}
@@ -69,24 +69,24 @@ upload_target(){
     esac
     UPLOAD_FILE=$TARGET_DIR$FILE_SUFFIX
     echo "### Uploading $UPLOAD_FILE"
-    GITHUB_TOKEN=$REL_TOKEN GITHUB_AUTH_USER=$REL_USER github-release upload \
+    GITHUB_TOKEN=$AUTH_TOKEN GITHUB_AUTH_USER=$AUTH_USER github-release upload \
         --user $REPO_USER \
         --repo $REPO_NAME \
-        --tag v$REL_VERSION \
+        --tag v$DIST_VERSION \
         --name $UPLOAD_FILE \
         --file $UPLOAD_FILE
 }
 
-echo "# Tagging v$REL_VERSION"
-GITHUB_TOKEN=$REL_TOKEN GITHUB_AUTH_USER=$REL_USER github-release release \
+echo "# Tagging v$DIST_VERSION"
+GITHUB_TOKEN=$AUTH_TOKEN GITHUB_AUTH_USER=$AUTH_USER github-release release \
     --user $REPO_USER \
     --repo $REPO_NAME \
-    --tag v$REL_VERSION \
-    --name "$APP-v$REL_VERSION" \
+    --tag v$DIST_VERSION \
+    --name "$APP-v$DIST_VERSION" \
     --description "$APP binaries for linux/macos/windows"
 
 for T in $TARGETS; do
     upload_target $T
 done
 
-echo v$REL_VERSION released!
+echo v$DIST_VERSION released!
