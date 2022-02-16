@@ -7,7 +7,8 @@ OPTS='-Drelease-safe'
 
 [ -z "$ZIG_BIN" ] && ZIG_BIN=zig
 
-case "$1" in
+CMD="$1"
+case "$CMD" in
     dist)
     #noop
     ;;
@@ -16,8 +17,8 @@ case "$1" in
     rm -rf zig-* dist/$APP-* && exit 0
     ;;
 
-    run)
-    shift && zig build run $OPTS $@ && exit 0
+    run*)
+    shift && zig build $CMD $OPTS $@ && exit 0
     ;;
 
     *)
