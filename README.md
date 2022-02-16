@@ -1,4 +1,4 @@
-# zpp - a build tool for seamless build and cross-compilation
+# zpp - a build tool for c/c++ with seamlessss cross-compilation via the zig toolchain
 
 ## Prepare build
 ```sh
