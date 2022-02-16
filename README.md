@@ -1,3 +1,5 @@
+# zpp - a build tool for seamless build and cross-compilation
+
 ## Prepare build
 ```sh
 ./boostrap.sh
