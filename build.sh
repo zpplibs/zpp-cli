@@ -22,8 +22,8 @@ case "$CMD" in
     ;;
 
     *)
-    if [ -n "$1" ]; then
-        echo "Unknown command \"$1\"" && exit 1
+    if [ -n "$CMD" ]; then
+        echo "Unknown command \"$CMD\"" && exit 1
     else
         zig build $OPTS $@ && exit 0
     fi
