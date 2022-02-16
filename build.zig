@@ -9,6 +9,9 @@ const deps = @import("deps.zig");
 // };
 // var mode_name_idx: usize = undefined;
 
+// comptime options
+var build_options: *std.build.OptionsStep = undefined;
+
 // fn addTest(
 //     comptime root_src: []const u8,
 //     test_name: []const u8,
@@ -35,6 +38,7 @@ fn addExecutable(
     b: *std.build.Builder,
 ) *std.build.LibExeObjStep {
     const exe = b.addExecutable(name, root_src);
+    exe.addOptions("build_options", build_options);
     
     const run_cmd = exe.run();
     run_cmd.step.dependOn(b.getInstallStep());
@@ -56,7 +60,9 @@ pub fn build(b: *std.build.Builder) void {
     const version: []const u8 = b.option(
         []const u8, "version", "the app version",
     ) orelse parseGitRevHead(b.allocator) catch "master";
-    const build_options = b.addOptions();
+    
+    // will not be used/referenced after the surrounding function returns
+    build_options = b.addOptions();
     build_options.addOption([]const u8, "version", version);
     
     // tests
@@ -70,23 +76,22 @@ pub fn build(b: *std.build.Builder) void {
     // for (tests) |t| test_all.dependOn(&t.step);
     
     // executables
-    const exe = deps.addAllTo(
+    deps.addAllTo(
         addExecutable(
             "zpp", "src/main.zig",
-            "run", "Run the executable",
+            "run", "Run the app",
             b,
         ),
         b, target, mode,
-    );
-    exe.addOptions("build_options", build_options);
-    exe.install();
+    ).install();
 }
 
-/// Returns the result of running `git rev-parse HEAD`
-pub fn parseGitRevHead(alloc: std.mem.Allocator) ![]const u8 {
+/// Returns the output of `git rev-parse HEAD`
+pub fn parseGitRevHead(a: std.mem.Allocator) ![]const u8 {
     const max = std.math.maxInt(usize);
-    const dirg = try std.fs.cwd().openDir(".git", .{});
-    const h = std.mem.trim(u8, try dirg.readFileAlloc(alloc, "HEAD", max), "\n");
-    const r = std.mem.trim(u8, try dirg.readFileAlloc(alloc, h[5..], max), "\n");
-    return r;
+    const git_dir = try std.fs.cwd().openDir(".git", .{});
+    // content of `.git/HEAD` -> `ref: refs/heads/master`
+    const h = std.mem.trim(u8, try git_dir.readFileAlloc(a, "HEAD", max), "\n");
+    // content of `refs/heads/master`
+    return std.mem.trim(u8, try git_dir.readFileAlloc(a, h[5..], max), "\n");
 }
