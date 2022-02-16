@@ -52,7 +52,7 @@ done
 [ -n "$REL_VERSION" ] || exit 0
 
 REL_TOKEN=$2
-[ -n "$REL_TOKEN" ] || REL_TOKEN=`cat gh-release-token`
+[ -n "$REL_TOKEN" ] || { echo "2nd arg (github token) is required for release."; exit 1; }
 
 REL_USER=dyu
 REPO_USER=zpplibs
@@ -77,7 +77,7 @@ upload_target(){
         --file $UPLOAD_FILE
 }
 
-echo "# Tagging v$REL_VERSION" && exit 0
+echo "# Tagging v$REL_VERSION"
 GITHUB_TOKEN=$REL_TOKEN GITHUB_AUTH_USER=$REL_USER github-release release \
     --user $REPO_USER \
     --repo $REPO_NAME \
