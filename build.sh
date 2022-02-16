@@ -29,7 +29,7 @@ archive_target(){
     case "$NAME" in
         *-windows*)
         [ -e "$TARGET_DIR.zip" ] && rm $TARGET_DIR.zip
-        rm $TARGET_DIR/bin/$APP.pdb
+        rm $TARGET_DIR/bin/*.pdb
         zip -r $TARGET_DIR.zip $TARGET_DIR
         ;;
         
