@@ -57,6 +57,7 @@ pub fn build(b: *std.build.Builder) void {
     const mode = b.standardReleaseOptions();
     //mode_name_idx = @enumToInt(mode);
     
+    // options
     const version: []const u8 = b.option(
         []const u8, "version", "the app version",
     ) orelse parseGitRevHead(b.allocator) catch "master";
