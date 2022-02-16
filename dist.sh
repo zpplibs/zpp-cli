@@ -26,7 +26,7 @@ archive_target(){
     NAME=${1%%-gnu*}
     TARGET_DIR=$APP-$NAME
     case "$NAME" in
-        *-windows-*)
+        *-windows*)
         [ -e "$TARGET_DIR.zip" ] && rm $TARGET_DIR.zip
         rm $TARGET_DIR/bin/$APP.pdb
         zip -r $TARGET_DIR.zip $TARGET_DIR
@@ -63,7 +63,7 @@ upload_target(){
     TARGET_DIR=$APP-$NAME
     FILE_SUFFIX='.tar.gz'
     case "$NAME" in
-        *-windows-*)
+        *-windows*)
         FILE_SUFFIX='.zip'
         ;;
     esac
