@@ -6,7 +6,28 @@ APP=zpp
 OPTS='-Drelease-safe'
 
 [ -z "$ZIG_BIN" ] && ZIG_BIN=zig
-[ "$1" != 'dist' ] && $ZIG_BIN build $OPTS && exit 0
+
+case "$1" in
+    dist)
+    #noop
+    ;;
+    
+    clean)
+    rm -rf zig-* dist/$APP-* && exit 0
+    ;;
+
+    run)
+    shift && zig build run $OPTS $@ && exit 0
+    ;;
+
+    *)
+    if [ -n "$1" ]; then
+        echo "Unknown command \"$1\"" && exit 1
+    else
+        zig build $OPTS $@ && exit 0
+    fi
+    ;;
+esac
 
 DIST_DIR=dist
 DIST_VERSION=$2

@@ -26,6 +26,10 @@ zigup 0.9.1
 ```sh
 ./build.sh
 ```
+### Run
+```sh
+./build.sh run -- version
+```
 ### Usage
 ```sh
 ./zig-out/bin/zpp help
@@ -51,4 +55,9 @@ zpp 0.1.0 macos aarch64
 ### Release
 ```sh
 ./build.sh dist VERSION GITHUB_TOKEN
+```
+
+### Clean
+```sh
+./build.sh clean
 ```
