@@ -107,6 +107,11 @@ GITHUB_TOKEN=$AUTH_TOKEN GITHUB_AUTH_USER=$AUTH_USER github-release release \
     --name "$APP-v$DIST_VERSION" \
     --description "$APP binaries for linux/macos/windows"
 
+echo "# Tagged v$DIST_VERSION! Preparing to upload ..."
+# Make sure the release is fully processed/synced
+# Avoids the error: could not find the release corresponding to tag v$DIST_VERSION
+sleep 5
+
 for T in $TARGETS; do
     upload_target $T
 done
